@@ -11,7 +11,7 @@ COLLECTION_NAME = "chat_history"
 
 print("Initializing Firestore Client...")
 client = firestore.Client(project=PROJECT_ID)
-
+    
 print("Initializing Firestore Chat Message History...")
 chat_history = FirestoreChatMessageHistory(
     session_id=SESSION_ID,
