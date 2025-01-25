@@ -3,10 +3,10 @@ from langchain.schema import SystemMessage,HumanMessage,AIMessage
 model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp",api_key='AIzaSyA-WrW_nJnLdok50MkITXCdgmD7tcg78Pc')
 
 chat_history= []
-sysmsg = SystemMessage(content='you are a helpful chatbot')
+sysmsg = SystemMessage(content='You are a helpful chatbot')
 chat_history.append(sysmsg)
 
-while True:
+while True: 
     query = input("You: ")
     if query.lower() == 'exit': 
         break
