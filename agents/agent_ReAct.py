@@ -1,61 +1,33 @@
-from dotenv import load_dotenv
-from langchain import hub
-from langchain.agents import (
-    AgentExecutor,
-    create_react_agent,
-)
-from langchain_core.tools import Tool
+import os
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.tools import DuckDuckGoSearchRun
+from langchain.agents import initialize_agent, AgentType
+from langchain.memory import ConversationBufferMemory
+from langchain.tools import Tool
+import streamlit as st 
 
-# Load environment variables from .env file
-load_dotenv()
+def main():
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp",api_key="AIzaSyA-WrW_nJnLdok50MkITXCdgmD7tcg78Pc")
+    search = DuckDuckGoSearchRun()
+    search_tool = Tool(name="DuckDuckGo", func=search.run, description="Search the web for information.")
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
+    agent = initialize_agent(
+        tools=[search_tool],
+        llm=llm,
+        agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+        memory=memory,
+        verbose=True
+    )
 
-# Define a very simple tool function that returns the current time
-def get_current_time(*args, **kwargs):
-    """Returns the current time in H:MM AM/PM format."""
-    import datetime  # Import datetime module to get current time
+    st.title("Gemini AI Agent")
+    st.write("Ask me anything!")
 
-    now = datetime.datetime.now()  # Get current time
-    return now.strftime("%I:%M %p")  # Format time in H:MM AM/PM format
-
-
-# List of tools available to the agent
-tools = [
-    Tool(
-        name="Time",  # Name of the tool
-        func=get_current_time,  # Function that the tool will execute
-        # Description of the tool
-        description="Useful for when you need to know the current time",
-    ),
-]
-
-# Pull the prompt template from the hub
-# ReAct = Reason and Action
-# https://smith.langchain.com/hub/hwchase17/react
-prompt = hub.pull("hwchase17/react")
-
-# Initialize a ChatOpenAI model
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp",api_key="AIzaSyA-WrW_nJnLdok50MkITXCdgmD7tcg78Pc")
+    user_input = st.text_input("You: ")
+    if user_input:
+        response = agent.run(user_input)
+        st.write("Agent:", response)
 
 
-# Create the ReAct agent using the create_react_agent function
-agent = create_react_agent(
-    llm=llm,
-    tools=tools,
-    prompt=prompt,
-    stop_sequence=True,
-)
-
-# Create an agent executor from the agent and tools
-agent_executor = AgentExecutor.from_agent_and_tools(
-    agent=agent,
-    tools=tools,
-    verbose=True,
-)
-
-# Run the agent with a test query
-response = agent_executor.invoke({"input": "What time is it?"})
-
-# Print the response from the agent
-print("response:", response)
+if __name__ == "__main__":
+    main()

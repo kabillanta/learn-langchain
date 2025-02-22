@@ -1,5 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.schema import SystemMessage,HumanMessage,AIMessage
+
 model = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp",api_key='AIzaSyA-WrW_nJnLdok50MkITXCdgmD7tcg78Pc')
 
 chat_history= []
@@ -16,3 +17,4 @@ while True:
     print("AI : " + response.content) 
     aimsg = AIMessage(content=response.content)  
     chat_history.append(aimsg)
+    print(chat_history)
